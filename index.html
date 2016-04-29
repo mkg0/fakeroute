@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Fake Route!</title>
+    <script src="dist/fakeroute.js" charset="utf-8"></script>
+</head>
+<style media="screen">
+    .col {
+        width: 33.3%;
+        float: left;
+        min-height: 200px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        padding: 20px;
+    }
+
+    .col + .col {
+        border-left-width: 0;
+    }
+    .col--aktif{background: #ddd;}
+</style>
+
+<body>
+    <div id="wrapper">
+
+        <div id="target1" class="col col--aktif">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae odit tempore delectus ut, consectetur eveniet inventore aut, voluptatibus tenetur iusto, voluptates consequatur. Dolore, voluptas explicabo nam suscipit eaque, incidunt? Asperiores.</p>
+        </div>
+        <div id="target2" class="col">asdasd</div>
+        <div id="target3" class="col">mkg değiş content</div>
+
+        <div style="margin:30px;padding:50px 20px;text-align:center;clear:both">
+            <a href="/" data-fakeroute-target="#target1">Açç1</a><br>
+            <a href="/deneme2.html" data-fakeroute-target="#target2">Açç2</a><br>
+            <a href="/deneme3.html" data-fakeroute-target="#target3" data-fakeroute-force="true">Açç3</a><br>
+        </div>
+    </div>
+    <script type="text/javascript">
+        fakeRoute.init({target:'#wrapper',equalStyle:'#target1,#target2,#target3'});
+        fakeRoute.onLoad=function () {
+            this.setAttribute('style','background-color:red;')
+        }
+        fakeRoute.onUnload=function () {
+        }
+        fakeRoute.onLoading=function (state) {
+           state.wait();
+           state.resolve();
+        }
+
+    </script>
+</body>
+
+</html>
