@@ -3,7 +3,11 @@ var fakeRoute= function(){};
 fakeRoute.options={
     selector:'a',
     target:'body',
-    equalStyle:'',
+    equalStyle:[],
+    enableInlineScripts:true,
+    enableSrcScripts:true,
+    enableStyleSheets:true,
+    ignoreScriptId:['__bs_script__']
 };
 
 fakeRoute.onLoading=null;
@@ -82,33 +86,103 @@ fakeRoute._detech=function (elm) {
 
 fakeRoute.open = function (url, target= fakeRoute.options.target, hash=true, force=false) {
     if(fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(target),fakeRoute.state);
+
     fakeRoute._loadPage(url,function (pageData,hash,force) {
         if (hash){
             fakeRoute.addHash(pageData);
         }
-        let draft=document.createElement('div');
-        draft.innerHTML= pageData.data;
-        let wrap= document.createElement('div');
-        wrap.className="fakeroute-wrapper";
-        wrap.innerHTML= draft.querySelector(target).innerHTML;
-        document.title=pageData.title;
-        document.querySelector(target).innerHTML="";
-        if(fakeRoute.onUnload) fakeRoute.onUnload.call(document.querySelector(target));
-        document.querySelector(target).appendChild(wrap);
-        fakeRoute.options.equalStyle.split(',').forEach(function (sel) {
-            let effectingDiv=document.querySelector(sel);
-            let effectorDiv=draft.querySelector(sel);
-            if (effectingDiv && effectorDiv){
-                effectingDiv.className = effectorDiv.className;
-                effectingDiv.setAttribute('style',effectorDiv.getAttribute('style'));
-            }
-        });
 
-        if(fakeRoute.onLoad)fakeRoute.onLoad.call(document.querySelector(target));
+        fakeRoute._pageInsertData(pageData,target);
+        fakeRoute._pageEqualStyle(pageData);
+        fakeRoute._pageUpdateMeta(pageData);
 
 
     }, hash, force);
 };
+
+
+fakeRoute._pageInsertData=function (pageData, target){
+    let draft=document.createElement('div');
+    draft.innerHTML= pageData.data;
+
+    let wrap= document.createElement('div');
+    wrap.className="fakeroute-wrapper";
+    let htmlContent= draft.querySelector(target).innerHTML;
+
+    let scripts= draft.querySelectorAll('script:not([src])' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
+    htmlContent = htmlContent.replace(/<script[^>]*>[^<]((.|\n)*?)<\/script>/g,'');
+    wrap.innerHTML=htmlContent;
+    if(fakeRoute.onUnload) fakeRoute.onUnload.call(document.querySelector(target));
+    document.querySelector(target).innerHTML="";
+    document.querySelector(target).appendChild(wrap);
+    if(fakeRoute.onLoad)fakeRoute.onLoad.call(document.querySelector(target));
+
+    // exec script codes
+    if (fakeRoute.options.enableInlineScripts) {
+        for (var i = 0; i < scripts.length; i++) {
+            if(scripts[i]){
+                new Function(scripts[i].replace(/<script[^>]*>/).replace(/<\/script>/,''))();
+            }
+        }
+    }
+
+};
+
+fakeRoute._pageUpdateMeta=function (pageData){
+    let draft=document.createElement('div');
+    draft.innerHTML= pageData.data;
+    if (fakeRoute.options.enableSrcScripts) {
+
+    let scripts= draft.querySelectorAll('script[src]' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
+    for (var i = 0; i < scripts.length; i++) {
+        if(scripts[i]){
+            let script = document.createElement('script');
+            script.setAttribute('src',scripts[i].getAttribute('src'));
+            if (scripts[i].getAttribute('type')) script.setAttribute('type',scripts[i].getAttribute('type'));
+            let oldScript =document.querySelector(`script[src='${script.getAttribute('src')}']`);
+            if (oldScript) oldScript.parentNode.removeChild(oldScript);
+            document.head.appendChild(script);
+        }
+    }
+}
+
+    document.title=pageData.title;
+};
+
+fakeRoute._pageEqualStyle=function (pageData){
+    let draft=document.createElement('div');
+    draft.innerHTML= pageData.data;
+
+    if (fakeRoute.options.enableStyleSheets) {
+        let stylesheets= document.querySelectorAll(`link[rel='stylesheet']`);
+        for (let i = 0; i < stylesheets.length; i++) {
+            stylesheets[i].parentNode.removeChild(stylesheets[i]);
+        }
+
+        let newStylesheets= draft.querySelectorAll(`link[rel='stylesheet']`);
+        for (let i = 0; i < newStylesheets.length; i++) {
+            let link = document.createElement('link');
+            link.setAttribute('rel','stylesheet');
+            if(newStylesheets[i].getAttribute('href')) link.setAttribute('href',newStylesheets[i].getAttribute('href'));
+            if(newStylesheets[i].getAttribute('media')) link.setAttribute('media',newStylesheets[i].getAttribute('media'));
+            if(newStylesheets[i].getAttribute('title')) link.setAttribute('title',newStylesheets[i].getAttribute('title'));
+            if(newStylesheets[i].getAttribute('charset')) link.setAttribute('charset',newStylesheets[i].getAttribute('charset'));
+            document.head.appendChild(link);
+        }
+    }
+
+
+    fakeRoute.options.equalStyle.forEach(function (sel) {
+        let effectingDiv=document.querySelector(sel);
+        let effectorDiv=draft.querySelector(sel);
+        if (effectingDiv && effectorDiv){
+            effectingDiv.className = effectorDiv.className;
+            effectingDiv.setAttribute('style',effectorDiv.getAttribute('style'));
+        }
+    });
+};
+
+
 
 fakeRoute._loadPage=function(url,callback, hash=true, force=false) {
     for (var i = 0; i < fakeRoute.datas.pages.length; i++) {

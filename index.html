@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title>Fake Route!</title>
     <script src="dist/fakeroute.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/assets/index.css" media="screen" title="no title" charset="utf-8">
 </head>
 <style media="screen">
     .col {
@@ -24,7 +25,6 @@
 
 <body>
     <div id="wrapper">
-
         <div id="target1" class="col col--aktif">
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae odit tempore delectus ut, consectetur eveniet inventore aut, voluptatibus tenetur iusto, voluptates consequatur. Dolore, voluptas explicabo nam suscipit eaque, incidunt? Asperiores.</p>
         </div>
@@ -32,24 +32,12 @@
         <div id="target3" class="col">mkg değiş content</div>
 
         <div style="margin:30px;padding:50px 20px;text-align:center;clear:both">
-            <a href="/" data-fakeroute-target="#target1">Açç1</a><br>
-            <a href="/deneme2.html" data-fakeroute-target="#target2">Açç2</a><br>
-            <a href="/deneme3.html" data-fakeroute-target="#target3" data-fakeroute-force="true">Açç3</a><br>
+            <a href="/" data-fakeroute-target="#target1">page1</a><br>
+            <a href="/page2.html" data-fakeroute-target="#target2">page2</a> - <a href="/page2-2.html" data-fakeroute-target="#target2">page2 Another Styled</a><br>
+            <a href="/page3.html" data-fakeroute-target="#target3" data-fakeroute-force="true">page3</a><br>
         </div>
     </div>
-    <script type="text/javascript">
-        fakeRoute.init({target:'#wrapper',equalStyle:'#target1,#target2,#target3'});
-        fakeRoute.onLoad=function () {
-            this.setAttribute('style','background-color:red;')
-        }
-        fakeRoute.onUnload=function () {
-        }
-        fakeRoute.onLoading=function (state) {
-           state.wait();
-           state.resolve();
-        }
-
-    </script>
+    <script src="assets/startroute.js" charset="utf-8"></script>
 </body>
 
 </html>
