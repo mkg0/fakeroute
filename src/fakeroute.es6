@@ -4,10 +4,10 @@ fakeRoute.options={
     selector:'a',
     target:'body',
     equalStyle:[],
-    enableInlineScripts:true,
     enableSrcScripts:true,//add "data-fakeroute-script" attr to script tag
+    enableInlineScripts:true,//add "data-fakeroute-script" attr to script tag
     enableStyleSheets:true,
-    ignoreScriptId:['__bs_script__']
+    enableInlineStyles:true
 };
 
 fakeRoute.onLoading=null;
@@ -109,20 +109,32 @@ fakeRoute._pageInsertData=function (pageData, target){
     wrap.className="fakeroute-wrapper";
     let htmlContent= draft.querySelector(target).innerHTML;
 
-    let scripts= draft.querySelectorAll('script:not([src])' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
+    let scripts= draft.querySelectorAll('script[data-fakeroute-script]:not([src])');
     htmlContent = htmlContent.replace(/<script[^>]*>[^<]((.|\n)*?)<\/script>/g,'');
+
+    let styles= draft.querySelectorAll('style');
+    htmlContent = htmlContent.replace(/<style[^>]*>[^<]((.|\n)*?)<\/style>/g,'');
+
     wrap.innerHTML=htmlContent;
     if(fakeRoute.onUnload) fakeRoute.onUnload.call(document.querySelector(target));
     document.querySelector(target).innerHTML="";
     document.querySelector(target).appendChild(wrap);
     if(fakeRoute.onLoad)fakeRoute.onLoad.call(document.querySelector(target));
 
-    // exec script codes
+    // exec inline script codes
     if (fakeRoute.options.enableInlineScripts) {
-        for (var i = 0; i < scripts.length; i++) {
+        for (let i = 0; i < scripts.length; i++) {
             if(scripts[i]){
-               new Function(scripts[i].innerText);
-//                alert(scripts[i].innerText);
+                eval(scripts[i].innerText);
+            }
+        }
+    }
+
+    // insert inline stylesheets
+    if (fakeRoute.options.enableInlineStyles) {
+        for (let i = 0; i < styles.length; i++) {
+            if(styles[i]){
+                document.body.innerHTML +=styles[i].outerHTML;
             }
         }
     }
@@ -133,7 +145,6 @@ fakeRoute._pageUpdateMeta=function (pageData){
     let draft=document.createElement('div');
     draft.innerHTML= pageData.data;
     if (fakeRoute.options.enableSrcScripts) {
-//    let scripts= draft.querySelectorAll('script[src]' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
     let scripts= draft.querySelectorAll('script[src][data-fakeroute-script]');
     for (var i = 0; i < scripts.length; i++) {
         if(scripts[i]){

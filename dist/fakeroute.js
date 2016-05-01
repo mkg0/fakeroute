@@ -8,10 +8,10 @@ fakeRoute.options = {
     selector: 'a',
     target: 'body',
     equalStyle: [],
-    enableInlineScripts: true,
     enableSrcScripts: true, //add "data-fakeroute-script" attr to script tag
+    enableInlineScripts: true, //add "data-fakeroute-script" attr to script tag
     enableStyleSheets: true,
-    ignoreScriptId: ['__bs_script__']
+    enableInlineStyles: true
 };
 
 fakeRoute.onLoading = null;
@@ -119,22 +119,32 @@ fakeRoute._pageInsertData = function (pageData, target) {
     wrap.className = "fakeroute-wrapper";
     var htmlContent = draft.querySelector(target).innerHTML;
 
-    var scripts = draft.querySelectorAll('script:not([src])' + fakeRoute.options.ignoreScriptId.map(function (a) {
-        return ':not(#' + a + ')';
-    }).join(''));
+    var scripts = draft.querySelectorAll('script[data-fakeroute-script]:not([src])');
     htmlContent = htmlContent.replace(/<script[^>]*>[^<]((.|\n)*?)<\/script>/g, '');
+
+    var styles = draft.querySelectorAll('style');
+    htmlContent = htmlContent.replace(/<style[^>]*>[^<]((.|\n)*?)<\/style>/g, '');
+
     wrap.innerHTML = htmlContent;
     if (fakeRoute.onUnload) fakeRoute.onUnload.call(document.querySelector(target));
     document.querySelector(target).innerHTML = "";
     document.querySelector(target).appendChild(wrap);
     if (fakeRoute.onLoad) fakeRoute.onLoad.call(document.querySelector(target));
 
-    // exec script codes
+    // exec inline script codes
     if (fakeRoute.options.enableInlineScripts) {
         for (var i = 0; i < scripts.length; i++) {
             if (scripts[i]) {
-                new Function(scripts[i].innerText);
-                //                alert(scripts[i].innerText);
+                eval(scripts[i].innerText);
+            }
+        }
+    }
+
+    // insert inline stylesheets
+    if (fakeRoute.options.enableInlineStyles) {
+        for (var _i = 0; _i < styles.length; _i++) {
+            if (styles[_i]) {
+                document.body.innerHTML += styles[_i].outerHTML;
             }
         }
     }
@@ -144,7 +154,6 @@ fakeRoute._pageUpdateMeta = function (pageData) {
     var draft = document.createElement('div');
     draft.innerHTML = pageData.data;
     if (fakeRoute.options.enableSrcScripts) {
-        //    let scripts= draft.querySelectorAll('script[src]' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
         var scripts = draft.querySelectorAll('script[src][data-fakeroute-script]');
         for (var i = 0; i < scripts.length; i++) {
             if (scripts[i]) {
@@ -172,13 +181,13 @@ fakeRoute._pageEqualStyle = function (pageData) {
         }
 
         var newStylesheets = draft.querySelectorAll('link[rel=\'stylesheet\']');
-        for (var _i = 0; _i < newStylesheets.length; _i++) {
+        for (var _i2 = 0; _i2 < newStylesheets.length; _i2++) {
             var link = document.createElement('link');
             link.setAttribute('rel', 'stylesheet');
-            if (newStylesheets[_i].getAttribute('href')) link.setAttribute('href', newStylesheets[_i].getAttribute('href'));
-            if (newStylesheets[_i].getAttribute('media')) link.setAttribute('media', newStylesheets[_i].getAttribute('media'));
-            if (newStylesheets[_i].getAttribute('title')) link.setAttribute('title', newStylesheets[_i].getAttribute('title'));
-            if (newStylesheets[_i].getAttribute('charset')) link.setAttribute('charset', newStylesheets[_i].getAttribute('charset'));
+            if (newStylesheets[_i2].getAttribute('href')) link.setAttribute('href', newStylesheets[_i2].getAttribute('href'));
+            if (newStylesheets[_i2].getAttribute('media')) link.setAttribute('media', newStylesheets[_i2].getAttribute('media'));
+            if (newStylesheets[_i2].getAttribute('title')) link.setAttribute('title', newStylesheets[_i2].getAttribute('title'));
+            if (newStylesheets[_i2].getAttribute('charset')) link.setAttribute('charset', newStylesheets[_i2].getAttribute('charset'));
             document.head.appendChild(link);
         }
     }
