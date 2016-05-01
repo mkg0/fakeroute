@@ -5,7 +5,7 @@ fakeRoute.options={
     target:'body',
     equalStyle:[],
     enableInlineScripts:true,
-    enableSrcScripts:true,
+    enableSrcScripts:true,//add "data-fakeroute-script" attr to script tag
     enableStyleSheets:true,
     ignoreScriptId:['__bs_script__']
 };
@@ -121,7 +121,8 @@ fakeRoute._pageInsertData=function (pageData, target){
     if (fakeRoute.options.enableInlineScripts) {
         for (var i = 0; i < scripts.length; i++) {
             if(scripts[i]){
-                new Function(scripts[i].replace(/<script[^>]*>/).replace(/<\/script>/,''))();
+               new Function(scripts[i].innerText);
+//                alert(scripts[i].innerText);
             }
         }
     }
@@ -132,8 +133,8 @@ fakeRoute._pageUpdateMeta=function (pageData){
     let draft=document.createElement('div');
     draft.innerHTML= pageData.data;
     if (fakeRoute.options.enableSrcScripts) {
-
-    let scripts= draft.querySelectorAll('script[src]' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
+//    let scripts= draft.querySelectorAll('script[src]' + fakeRoute.options.ignoreScriptId.map( a => `:not(#${a})` ).join('') );
+    let scripts= draft.querySelectorAll('script[src][data-fakeroute-script]');
     for (var i = 0; i < scripts.length; i++) {
         if(scripts[i]){
             let script = document.createElement('script');
@@ -170,7 +171,6 @@ fakeRoute._pageEqualStyle=function (pageData){
             document.head.appendChild(link);
         }
     }
-
 
     fakeRoute.options.equalStyle.forEach(function (sel) {
         let effectingDiv=document.querySelector(sel);
