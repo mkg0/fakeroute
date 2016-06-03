@@ -1,0 +1,7 @@
+node_modules
+src
+assets
+.gitignore
+bower.json
+index.json
+*.html
