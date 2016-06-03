@@ -2,9 +2,7 @@
   "name": "fakeroute",
   "version": "0.1.5",
   "description": "",
-  "main": [
-    "dist/fakeroute.js"
-  ],
+  "main": "dist/fakeroute.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

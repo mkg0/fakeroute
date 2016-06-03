@@ -246,4 +246,6 @@ fakeRoute.addHash = function (_ref2) {
 
     window.history.pushState(id, title, url);
 };
+
+module.exports = fakeRoute;
 //# sourceMappingURL=fakeroute.js.map
