@@ -230,3 +230,5 @@ fakeRoute._loadPage=function(url,callback, hash=true, force=false) {
 fakeRoute.addHash=function ({id, url, title}) {
     window.history.pushState(id,title,url);
 };
+
+module.exports = fakeRoute;
