@@ -4,7 +4,6 @@ plumber = require('gulp-plumber');
 rename = require('gulp-rename');
 sourcemaps  = require('gulp-sourcemaps');
 uglify = require('gulp-uglify');
-base64 = require('gulp-base64');
 babel= require('gulp-babel');
 
 gulp.task('script',function () {
@@ -20,18 +19,6 @@ gulp.task('script',function () {
     .pipe(gulp.dest('dist'))
     .pipe(sync.reload({stream:true}));
 });
-
-
-// gulp.task('minify',function () {
-//     gulp.src('dist/mkg-share.js')
-//     .pipe(uglify())
-//     .pipe(rename({suffix:'.min'}))
-//     .pipe(gulp.dest('dist'))
-//     gulp.src('dist/mkg-share.css')
-//     .pipe(cleancss())
-//     .pipe(rename({suffix:'.min'}))
-//     .pipe(gulp.dest('dist'))
-// })
 
 gulp.task('html',function () {
     sync.reload();
