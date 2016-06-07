@@ -85,8 +85,7 @@ fakeRoute._detech=function (elm) {
 };
 
 fakeRoute.open = function (url, target= fakeRoute.options.target, hash=true, force=false) {
-    if(fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(target),fakeRoute.state);
-
+    if(fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(target),fakeRoute.state,url);
     fakeRoute._loadPage(url,function (pageData,hash,force) {
         if (hash){
             fakeRoute.addHash(pageData);
@@ -231,4 +230,7 @@ fakeRoute.addHash=function ({id, url, title}) {
     window.history.pushState(id,title,url);
 };
 
-module.exports = fakeRoute;
+// module.exports = fakeRoute;
+if (typeof module === 'object' && module.exports) {
+    module.exports = fakeRoute;
+  }

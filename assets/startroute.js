@@ -4,7 +4,8 @@ fakeRoute.onLoad=function () {
 };
 fakeRoute.onUnload=function () {
 };
-fakeRoute.onLoading=function (state) {
+fakeRoute.onLoading=function (state,url) {
    state.wait();
+   console.log(url);
    state.resolve();
 };

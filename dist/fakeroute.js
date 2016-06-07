@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /*jshint esversion:6*/
@@ -98,8 +100,7 @@ fakeRoute.open = function (url) {
     var hash = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
     var force = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-    if (fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(target), fakeRoute.state);
-
+    if (fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(target), fakeRoute.state, url);
     fakeRoute._loadPage(url, function (pageData, hash, force) {
         if (hash) {
             fakeRoute.addHash(pageData);
@@ -247,5 +248,8 @@ fakeRoute.addHash = function (_ref2) {
     window.history.pushState(id, title, url);
 };
 
-module.exports = fakeRoute;
+// module.exports = fakeRoute;
+if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
+    module.exports = fakeRoute;
+}
 //# sourceMappingURL=fakeroute.js.map
