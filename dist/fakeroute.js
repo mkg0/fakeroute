@@ -4,12 +4,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-/*jshint esversion:6*/
 var fakeRoute = function fakeRoute() {};
 fakeRoute.options = {
     selector: 'a',
     target: 'body',
     equalStyle: [],
+    equalContent: [],
     enableSrcScripts: true, //add "data-fakeroute-script" attr to script tag
     enableInlineScripts: true, //add "data-fakeroute-script" attr to script tag
     enableStyleSheets: true,
@@ -59,11 +59,10 @@ fakeRoute.init = function () {
         fakeRoute.options[item] = arguments[0][item];
     }
     document.body.addEventListener('click', function (e) {
-        e.preventDefault();
         var node = e.target;
         do {
             if ((node.matches || node.msMatchesSelector || node.webkitMatchesSelector).call(node, fakeRoute.options.selector)) {
-                fakeRoute._detech(node);
+                fakeRoute._detech(node, e);
                 break;
             }
         } while (node = node.parentElement);
@@ -79,13 +78,16 @@ fakeRoute.init = function () {
         if (pageData) {
             fakeRoute.open(pageData.url, fakeRoute.options.target, false);
         } else {
-            console.log('bulamadı');
+            // FIXME: bulamadığı kayıt için yeniden sayfa
         }
     };
     fakeRoute._loadPage(window.location.pathname, null, false, false);
     window.history.replaceState(1, document.title, window.location.href);
+    if (fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(selector), fakeRoute.state, window.location.pathname);
+    if (fakeRoute.onLoad) fakeRoute.onLoad.call(document.querySelector(selector), window.location.pathname);
 };
-fakeRoute._detech = function (elm) {
+fakeRoute._detech = function (elm, event) {
+    event.preventDefault();
     var target = elm.getAttribute('data-fakeroute-target') || fakeRoute.options.target;
     var url = elm.getAttribute('data-fakeroute-url') || elm.getAttribute('href');
     var hash = elm.getAttribute('data-fakeroute-hash') === 'false' ? false : true;
@@ -130,7 +132,7 @@ fakeRoute._pageInsertData = function (pageData, target) {
     if (fakeRoute.onUnload) fakeRoute.onUnload.call(document.querySelector(target));
     document.querySelector(target).innerHTML = "";
     document.querySelector(target).appendChild(wrap);
-    if (fakeRoute.onLoad) fakeRoute.onLoad.call(document.querySelector(target));
+    if (fakeRoute.onLoad) fakeRoute.onLoad.call(document.querySelector(target), pageData.url);
 
     // exec inline script codes
     if (fakeRoute.options.enableInlineScripts) {
@@ -201,6 +203,14 @@ fakeRoute._pageEqualStyle = function (pageData) {
             effectingDiv.setAttribute('style', effectorDiv.getAttribute('style'));
         }
     });
+
+    fakeRoute.options.equalContent.forEach(function (sel) {
+        var effectingDiv = document.querySelector(sel);
+        var effectorDiv = draft.querySelector(sel);
+        if (effectingDiv && effectorDiv) {
+            effectingDiv.innerHTML = effectorDiv.innerHTML;
+        }
+    });
 };
 
 fakeRoute._loadPage = function (url, callback) {
@@ -235,9 +245,7 @@ fakeRoute._loadPage = function (url, callback) {
     req.addEventListener("error", function (e) {
         if (fakeRoute.onError) fakeRoute.onError.call(e);
     });
-    setTimeout(function () {
-        req.send();
-    }, 300);
+    req.send();
 };
 
 fakeRoute.addHash = function (_ref2) {
