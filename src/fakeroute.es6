@@ -72,7 +72,7 @@ fakeRoute.init = function({selector,target}={}){
     };
     fakeRoute._loadPage(window.location.pathname,null,false,false);
     window.history.replaceState(1,document.title,window.location.href);
-    if (fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(selector), fakeRoute.state,window.location.pathname);
+    // if (fakeRoute.onLoading) fakeRoute.onLoading.call(document.querySelector(selector), fakeRoute.state,window.location.pathname);
     if (fakeRoute.onLoad) fakeRoute.onLoad.call(document.querySelector(selector),window.location.pathname);
 };
 fakeRoute._detech=function (elm,event) {
